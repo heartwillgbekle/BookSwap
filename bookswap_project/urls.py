@@ -20,6 +20,10 @@ from django.contrib import admin
 from django.urls import path, include
 from core.views import home_view 
 from rest_framework.authtoken.views import obtain_auth_token
+from django.http import HttpResponse
+
+def home_view(request):
+    return HttpResponse("<h1>Welcome to the BookSwap API</h1><p>The server is running!</p>")
 
 urlpatterns = [
     path('', home_view, name='home'),
@@ -27,3 +31,5 @@ urlpatterns = [
     path('api/login/', obtain_auth_token),
     path('api/', include('core.urls')),
 ]
+
+

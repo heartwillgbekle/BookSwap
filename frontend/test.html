@@ -70,9 +70,10 @@
             body: JSON.stringify({
                 title: currentBook.title,
                 author: currentBook.author,
-                isbn: id('isbn').value,
-                condition: 'Good', // Default for now
-                price: 0.00
+                isbn: document.getElementById('isbn').value,
+                condition: "GOOD",  
+                price: "0.00",
+                cover_image_url: currentBook.cover_image_url || "" // Adding this since your model requires it
             })
         });
         if(res.ok) { alert("Book Saved Successfully!"); }
