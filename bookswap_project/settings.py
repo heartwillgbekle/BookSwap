@@ -44,14 +44,15 @@ INSTALLED_APPS = [
 
 # settings.py
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', 
-    'django.contrib.sessions.middleware.SessionMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware', # Essential for DigitalOcean static files
+    'django.contrib.sessions.middleware.SessionMiddleware', # Required for Admin
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware',
-    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware', # Required for Admin
+    'django.contrib.messages.middleware.MessageMiddleware', # Required for Admin
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
