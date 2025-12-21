@@ -11,6 +11,7 @@ from decouple import config
 from rest_framework import permissions 
 from .models import Listing 
 from .serializers import UserSerializer, ListingSerializer 
+from django.http import HttpResponse
 
 from .serializers import UserSerializer
 
@@ -63,3 +64,6 @@ class ListingCreateView(generics.CreateAPIView):
     def perform_create(self, serializer):
         """Set the seller to the currently logged-in user."""
         serializer.save(seller=self.request.user)
+
+def home_view(request):
+    return HttpResponse("<h1>BookSwap API is Live!</h1>")
