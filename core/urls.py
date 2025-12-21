@@ -10,5 +10,7 @@ urlpatterns = [
     path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
     path('books/lookup/', BookLookupView.as_view(), name='book-lookup'),
     # Add this line for creating listings
-    path('listings/', ListingCreateView.as_view(), name='listing-create'),
+    path('listings/create/', ListingCreateView.as_view(), name='listing-create'),
 ]
+
+
