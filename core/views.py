@@ -12,6 +12,7 @@ from rest_framework import permissions
 from .models import Listing 
 from .serializers import UserSerializer, ListingSerializer 
 from django.http import HttpResponse
+from rest_framework.generics import ListAPIView
 
 from .serializers import UserSerializer
 
@@ -67,3 +68,9 @@ class ListingCreateView(generics.CreateAPIView):
 
 def home_view(request):
     return HttpResponse("<h1>BookSwap API is Live!</h1>")
+
+class ListingListView(ListAPIView):
+    queryset = Listing.objects.all()
+    serializer_class = ListingSerializer
+    # This view doesn't need login, so anyone can see the books for sale!
+    permission_classes = []

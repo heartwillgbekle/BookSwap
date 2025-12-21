@@ -2,7 +2,7 @@
 
 from django.urls import path
 # Update this import
-from .views import CreateUserView, BookLookupView, ListingCreateView
+from .views import CreateUserView, BookLookupView, ListingCreateView, ListingListView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
@@ -11,6 +11,7 @@ urlpatterns = [
     path('books/lookup/', BookLookupView.as_view(), name='book-lookup'),
     # Add this line for creating listings
     path('listings/create/', ListingCreateView.as_view(), name='listing-create'),
+    path('listings/', ListingListView.as_view(), name='listing-list'),
 ]
 
 
