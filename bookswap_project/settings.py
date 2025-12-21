@@ -26,7 +26,12 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = False
 
-ALLOWED_HOSTS = []
+# settings.py
+
+ALLOWED_HOSTS = ['seashell-app-t7cwg.ondigitalocean.app', 'localhost', '127.0.0.1']
+
+# Option B: Wildcard (Easiest for testing)
+# ALLOWED_HOSTS = ['*']
 
 
 # Application definition
