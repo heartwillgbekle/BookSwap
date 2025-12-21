@@ -42,19 +42,6 @@ INSTALLED_APPS = [
     'core',
 ]
 
-# settings.py
-
-
-MIDDLEWARE = [
-    'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Essential for DigitalOcean static files
-    'django.contrib.sessions.middleware.SessionMiddleware', # Required for Admin
-    'django.middleware.common.CommonMiddleware',
-    'django.middleware.csrf.CsrfViewMiddleware',
-    'django.contrib.auth.middleware.AuthenticationMiddleware', # Required for Admin
-    'django.contrib.messages.middleware.MessageMiddleware', # Required for Admin
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
-]
 
 ROOT_URLCONF = 'bookswap_project.urls'
 
@@ -139,10 +126,16 @@ REST_FRAMEWORK = {
 }
 
 
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware', # Add this right here
-    # ... rest of your middleware
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.common.CommonMiddleware',
+    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 STATIC_ROOT = BASE_DIR / "staticfiles"
