@@ -77,7 +77,12 @@
         let authToken = "";
         let currentBook = {};
 
-        // 1. HELPER: Get CSRF token from Django's hidden input
+        // Helper: Convert insecure Google image URLs to secure HTTPS
+        function secureUrl(url) {
+            if (!url) return 'https://via.placeholder.com/150?text=No+Cover';
+            return url.replace('http://', 'https://');
+        }
+
         function getCSRF() {
             const token = document.querySelector('[name=csrfmiddlewaretoken]');
             return token ? token.value : "";
@@ -85,22 +90,18 @@
 
         const val = (id) => document.getElementById(id).value;
 
-        // 2. AUTHENTICATION (With CSRF Headers)
+        // AUTHENTICATION
         async function register() {
             const res = await fetch(`${baseUrl}/api/register/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRF() // Security Requirement
+                    'X-CSRFToken': getCSRF()
                 },
                 body: JSON.stringify({username: val('user'), password: val('pass')})
             });
-            if(res.ok) {
-                alert("Welcome! Your account is ready. Please log in.");
-            } else {
-                const err = await res.json();
-                alert("Registration Failed: " + (err.error || "Username taken or weak password."));
-            }
+            if(res.ok) alert("Welcome! Your account is ready. Please log in.");
+            else alert("Error: Use a unique username.");
         }
 
         async function login() {
@@ -108,7 +109,7 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRF() // Security Requirement
+                    'X-CSRFToken': getCSRF()
                 },
                 body: JSON.stringify({username: val('user'), password: val('pass')})
             });
@@ -121,36 +122,51 @@
                 document.getElementById('statusDot').classList.replace('bg-slate-300', 'bg-green-500');
                 loadMarketplace();
             } else {
-                alert("Login failed. Check your username/password.");
+                alert("Login failed.");
             }
         }
 
-        // 3. BOOK LOOKUP
+        // IMPROVED BOOK LOOKUP
         async function lookup() {
-            const isbn = val('isbn');
+            const isbn = val('isbn').replace(/-/g, "").trim(); // Remove dashes
             if(!isbn) return alert("Please enter an ISBN first.");
             
-            const res = await fetch(`${baseUrl}/api/books/lookup/?isbn=${isbn}`);
-            if(!res.ok) return alert("Book not found.");
-            
-            currentBook = await res.json();
-            document.getElementById('searchResult').classList.remove('hidden');
-            document.getElementById('resTitle').innerText = currentBook.title;
-            document.getElementById('resAuthor').innerText = currentBook.author;
-            document.getElementById('resImg').src = currentBook.cover_image_url;
-            window.scrollTo({ top: 400, behavior: 'smooth' });
+            // Show a "Searching..." state
+            const searchBtn = document.querySelector('button[onclick="lookup()"]');
+            searchBtn.innerText = "Searching...";
+
+            try {
+                const res = await fetch(`${baseUrl}/api/books/lookup/?isbn=${isbn}`);
+                if(!res.ok) throw new Error("Book not found.");
+                
+                const data = await res.json();
+                currentBook = {
+                    ...data,
+                    cover_image_url: secureUrl(data.cover_image_url) // Fix the image URL
+                };
+
+                document.getElementById('searchResult').classList.remove('hidden');
+                document.getElementById('resTitle').innerText = currentBook.title;
+                document.getElementById('resAuthor').innerText = currentBook.author;
+                document.getElementById('resImg').src = currentBook.cover_image_url;
+                window.scrollTo({ top: 400, behavior: 'smooth' });
+            } catch (err) {
+                alert("We couldn't find that ISBN. Make sure it's the 10 or 13 digit number on the back.");
+            } finally {
+                searchBtn.innerText = "Search";
+            }
         }
 
-        // 4. SAVE LISTING (With Token & CSRF)
+        // SAVE LISTING
         async function saveListing() {
-            if(!authToken) return alert("Please login first to list a book!");
+            if(!authToken) return alert("Please login first!");
             
             const res = await fetch(`${baseUrl}/api/listings/create/`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
                     'Authorization': `Token ${authToken}`,
-                    'X-CSRFToken': getCSRF() // Security Requirement
+                    'X-CSRFToken': getCSRF()
                 },
                 body: JSON.stringify({
                     title: currentBook.title,
@@ -158,20 +174,18 @@
                     isbn: val('isbn'),
                     condition: "GOOD",
                     price: "0.00",
-                    cover_image_url: currentBook.cover_image_url
+                    cover_image_url: currentBook.cover_image_url // Sends the secure URL
                 })
             });
             
             if(res.ok) {
-                alert("Success! Your book is now in the marketplace.");
+                alert("Success!");
                 document.getElementById('searchResult').classList.add('hidden');
                 loadMarketplace();
-            } else {
-                alert("Could not save. Is this book already listed?");
             }
         }
 
-        // 5. LOAD MARKETPLACE
+        // LOAD MARKETPLACE (With Secure URLs)
         async function loadMarketplace() {
             const res = await fetch(`${baseUrl}/api/listings/`);
             const books = await res.json();
@@ -179,7 +193,7 @@
             
             container.innerHTML = books.map(book => `
                 <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 items-center hover:shadow-md transition-shadow">
-                    <img src="${book.cover_image_url}" class="w-20 h-28 object-cover rounded-lg shadow-sm bg-slate-50">
+                    <img src="${secureUrl(book.cover_image_url)}" class="w-20 h-28 object-cover rounded-lg shadow-sm bg-slate-50">
                     <div class="flex-1">
                         <h4 class="font-bold text-slate-800 leading-tight">${book.title}</h4>
                         <p class="text-sm text-slate-500 mb-3">${book.author}</p>
@@ -197,22 +211,18 @@
         }
 
         async function deleteBook(id) {
-            if(!authToken) return alert("Login to delete your listings.");
-            if(!confirm("Remove this book from the marketplace?")) return;
-
+            if(!authToken) return alert("Login first.");
+            if(!confirm("Remove listing?")) return;
             const res = await fetch(`${baseUrl}/api/listings/delete/${id}/`, {
                 method: 'DELETE',
                 headers: {
                     'Authorization': `Token ${authToken}`,
-                    'X-CSRFToken': getCSRF() // Security Requirement
+                    'X-CSRFToken': getCSRF()
                 }
             });
-
             if(res.ok) loadMarketplace();
-            else alert("You can only delete books that YOU listed.");
         }
 
-        // Initial load
         loadMarketplace();
     </script>
 </body>
