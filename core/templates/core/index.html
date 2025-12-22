@@ -185,6 +185,7 @@
             
             const price = val('listPrice') || "0.00";
             const condition = document.getElementById('listCondition').value;
+            const cleanIsbn = val('isbn').replace(/[^0-9]/g, "");
 
             const res = await fetch(`${baseUrl}/api/listings/create/`, {
                 method: 'POST',
@@ -193,10 +194,11 @@
                     'Authorization': `Token ${authToken}`,
                     'X-CSRFToken': getCSRF()
                 },
+                
                 body: JSON.stringify({
                     title: currentBook.title,
                     author: currentBook.author,
-                    isbn: val('isbn'),
+                    isbn: cleanIsbn,
                     condition: condition, // Now dynamic!
                     price: price,         // Now dynamic!
                     cover_image_url: currentBook.cover_image_url
