@@ -74,3 +74,11 @@ class ListingListView(ListAPIView):
     serializer_class = ListingSerializer
     # This view doesn't need login, so anyone can see the books for sale!
     permission_classes = []
+
+from rest_framework.generics import ListAPIView
+
+
+class ListingListView(ListAPIView):
+    queryset = Listing.objects.all().order_by('-created_at') 
+    serializer_class = ListingSerializer
+    permission_classes = [] 

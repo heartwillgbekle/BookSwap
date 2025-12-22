@@ -26,6 +26,12 @@
     <input type="text" id="isbn" placeholder="Enter ISBN">
     <button onclick="lookup()">Search</button>
 
+    <hr>
+
+    <h2>3. Global Marketplace</h2>
+    <button onclick="loadMarketplace()" style="background: #9b59b6;">Refresh Listings</button>
+    <div id="marketplaceList" style="margin-top: 20px;"></div>
+
     <div id="bookResult">
         <h3 id="dispTitle"></h3>
         <p id="dispAuthor"></p>
@@ -78,6 +84,26 @@
         });
         if(res.ok) { alert("Book Saved Successfully!"); }
         else { alert("Error saving book. Are you logged in?"); }
+    }
+
+    async function loadMarketplace() {
+        const res = await fetch(`${baseUrl}/api/listings/`);
+        const books = await res.json();
+        const listDiv = document.getElementById('marketplaceList');
+        
+        // Clear the current list
+        listDiv.innerHTML = "";
+
+        // Loop through the books and create small cards for them
+        books.forEach(book => {
+            const item = document.createElement('div');
+            item.style = "border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #fff;";
+            item.innerHTML = `
+                <strong>${book.title}</strong> by ${book.author}<br>
+                <small>ISBN: ${book.isbn} | Condition: ${book.condition} | Price: $${book.price}</small>
+            `;
+            listDiv.appendChild(item);
+        });
     }
 
     function id(name) { return document.getElementById(name); }
