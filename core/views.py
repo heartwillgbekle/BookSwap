@@ -15,8 +15,15 @@ from .serializers import UserSerializer
 from django.contrib.auth.models import User
 from django.shortcuts import render
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 User = get_user_model()
+
+@method_decorator(csrf_exempt, name='dispatch')
+class HomeView(View):
+    def get(self, request):
+        return render(request, 'core/index.html')
 
 # Keep your existing CreateUserView
 class CreateUserView(generics.CreateAPIView):
@@ -85,16 +92,24 @@ class ListingListView(ListAPIView):
 
 
 # 1. User Registration View
-class RegisterView(generics.CreateAPIView):
-    queryset = User.objects.all()
-    permission_classes = [permissions.AllowAny] # Anyone can sign up
+class RegisterView(APIView):
+    permission_classes = [permissions.AllowAny]
+
     def post(self, request):
-        user = User.objects.create_user(
-            username=request.data['username'],
-            password=request.data['password'],
-            email=request.data.get('email', '')
-        )
-        return Response({"message": "User created successfully"}, status=201)
+        username = request.data.get('username')
+        password = request.data.get('password')
+        
+        if not username or not password:
+            return Response({"error": "Missing username or password"}, status=status.HTTP_400_BAD_REQUEST)
+            
+        if User.objects.filter(username=username).exists():
+            return Response({"error": "Username already exists"}, status=status.HTTP_400_BAD_REQUEST)
+
+        try:
+            user = User.objects.create_user(username=username, password=password)
+            return Response({"message": "User created successfully"}, status=status.HTTP_201_CREATED)
+        except Exception as e:
+            return Response({"error": str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 # 2. Delete Listing View
 class ListingDeleteView(generics.DestroyAPIView):
@@ -104,7 +119,3 @@ class ListingDeleteView(generics.DestroyAPIView):
     def get_queryset(self):
         # Security: Users can only delete their OWN listings
         return self.queryset.filter(seller=self.request.user)
-
-class HomeView(View):
-    def get(self, request):
-        return render(request, 'core/index.html')

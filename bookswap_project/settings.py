@@ -49,7 +49,6 @@ INSTALLED_APPS = [
     'core',
 ]
 
-
 ROOT_URLCONF = 'bookswap_project.urls'
 
 TEMPLATES = [
@@ -132,7 +131,6 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
     ],
 }
-
 
 
 MIDDLEWARE = [
