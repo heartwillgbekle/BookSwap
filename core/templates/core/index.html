@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
     <title>BookSwap | Student Marketplace</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
@@ -22,9 +23,12 @@
         <h1 class="text-5xl font-extrabold mb-4 tracking-tight">Swap Books, Save Money.</h1>
         <p class="text-xl text-slate-200 mb-8 max-w-2xl">The exclusive marketplace for students to trade textbooks and learning materials.</p>
         
-        <div class="w-full max-w-xl flex bg-white rounded-full overflow-hidden shadow-2xl">
-            <input id="isbn" type="text" placeholder="Search by ISBN..." class="flex-1 px-6 py-4 text-slate-800 focus:outline-none">
-            <button onclick="lookup()" class="bg-indigo-600 px-8 py-4 font-bold hover:bg-indigo-700 transition">Search</button>
+        <div class="w-full max-w-xl">
+            <div class="flex bg-white rounded-full overflow-hidden shadow-2xl">
+                <input id="isbn" type="text" placeholder="Search by ISBN..." class="flex-1 px-6 py-4 text-slate-800 focus:outline-none">
+                <button onclick="lookup()" class="bg-indigo-600 px-8 py-4 font-bold hover:bg-indigo-700 transition">Search</button>
+            </div>
+            <p id="isbnError" class="text-red-300 text-sm mt-2 ml-6 hidden font-semibold"></p>
         </div>
     </header>
 
@@ -95,14 +99,12 @@
         let authToken = "";
         let currentBook = {};
 
-        // Helper: Convert insecure Google image URLs to secure HTTPS
+        // Helper: Convert insecure URLs to secure HTTPS
         function secureUrl(url) {
-            if (!url || url.length < 5) {
-                // Returns a nice gray placeholder if no image exists
+            if (!url || typeof url !== 'string') {
                 return 'https://via.placeholder.com/150/e2e8f0/64748b?text=No+Cover';
             }
-            // Forces https and also handles Google's specific thumbnail parameters
-            return url.replace('http://', 'https://');
+            return url.trim().replace('http://', 'https://');
         }
 
         function getCSRF() {
@@ -116,10 +118,7 @@
         async function register() {
             const res = await fetch(`${baseUrl}/api/register/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRF()
-                },
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                 body: JSON.stringify({username: val('user'), password: val('pass')})
             });
             if(res.ok) alert("Welcome! Your account is ready. Please log in.");
@@ -129,10 +128,7 @@
         async function login() {
             const res = await fetch(`${baseUrl}/api/login/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'X-CSRFToken': getCSRF()
-                },
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                 body: JSON.stringify({username: val('user'), password: val('pass')})
             });
             const data = await res.json();
@@ -150,21 +146,31 @@
 
         // IMPROVED BOOK LOOKUP
         async function lookup() {
-            const isbn = val('isbn').replace(/-/g, "").trim(); // Remove dashes
-            if(!isbn) return alert("Please enter an ISBN first.");
+            const isbnInput = val('isbn');
+            const cleanIsbn = isbnInput.replace(/[^0-9]/g, ""); // Remove dashes/spaces
+            const errorEl = document.getElementById('isbnError');
             
-            // Show a "Searching..." state
+            errorEl.classList.add('hidden');
+
+            if(!cleanIsbn) return alert("Please enter an ISBN first.");
+            
+            if(cleanIsbn.length > 13) {
+                errorEl.innerText = "ISBN too long (Max 13 digits)";
+                errorEl.classList.remove('hidden');
+                return;
+            }
+            
             const searchBtn = document.querySelector('button[onclick="lookup()"]');
             searchBtn.innerText = "Searching...";
 
             try {
-                const res = await fetch(`${baseUrl}/api/books/lookup/?isbn=${isbn}`);
+                const res = await fetch(`${baseUrl}/api/books/lookup/?isbn=${cleanIsbn}`);
                 if(!res.ok) throw new Error("Book not found.");
                 
                 const data = await res.json();
                 currentBook = {
                     ...data,
-                    cover_image_url: secureUrl(data.cover_image_url) // Fix the image URL
+                    cover_image_url: secureUrl(data.cover_image_url) 
                 };
 
                 document.getElementById('searchResult').classList.remove('hidden');
@@ -173,7 +179,7 @@
                 document.getElementById('resImg').src = currentBook.cover_image_url;
                 window.scrollTo({ top: 400, behavior: 'smooth' });
             } catch (err) {
-                alert("We couldn't find that ISBN. Make sure it's the 10 or 13 digit number on the back.");
+                alert("We couldn't find that ISBN. Check the number on the back of the book.");
             } finally {
                 searchBtn.innerText = "Search";
             }
@@ -183,8 +189,10 @@
         async function saveListing() {
             if(!authToken) return alert("Please login first to list a book!");
             
-            const price = val('listPrice') || "0.00";
-            const condition = document.getElementById('listCondition').value;
+            // Format price to 2 decimal places (e.g., "12.50")
+            const priceInput = val('listPrice') || "0.00";
+            const formattedPrice = parseFloat(priceInput).toFixed(2);
+            
             const cleanIsbn = val('isbn').replace(/[^0-9]/g, "");
 
             const res = await fetch(`${baseUrl}/api/listings/create/`, {
@@ -194,28 +202,30 @@
                     'Authorization': `Token ${authToken}`,
                     'X-CSRFToken': getCSRF()
                 },
-                
                 body: JSON.stringify({
                     title: currentBook.title,
                     author: currentBook.author,
                     isbn: cleanIsbn,
-                    condition: condition, // Now dynamic!
-                    price: price,         // Now dynamic!
+                    condition: document.getElementById('listCondition').value,
+                    price: formattedPrice,
                     cover_image_url: currentBook.cover_image_url
                 })
             });
             
             if(res.ok) {
-                alert(`Success! Listed for $${price}`);
+                alert(`Success! Listed for $${formattedPrice}`);
                 document.getElementById('searchResult').classList.add('hidden');
-                document.getElementById('listPrice').value = ""; // Clear for next time
                 loadMarketplace();
             } else {
-                alert("Check your price format or login status.");
+                const errorData = await res.json();
+                console.log("Server Error:", errorData);
+                // Map server errors to a readable alert
+                let msg = Object.entries(errorData).map(([k, v]) => `${k}: ${v}`).join("\n");
+                alert("Save failed:\n" + msg);
             }
         }
 
-        // LOAD MARKETPLACE (With Secure URLs)
+        // LOAD MARKETPLACE
         async function loadMarketplace() {
             try {
                 const res = await fetch(`${baseUrl}/api/listings/`);
@@ -223,7 +233,7 @@
                 const container = document.getElementById('marketplace');
                 
                 if (books.length === 0) {
-                    container.innerHTML = `<p class="col-span-2 text-center py-10 text-slate-400">No books listed yet. Be the first!</p>`;
+                    container.innerHTML = `<p class="col-span-2 text-center py-10 text-slate-400">No books listed yet.</p>`;
                     return;
                 }
 
@@ -264,12 +274,10 @@
             if(!confirm("Remove listing?")) return;
             const res = await fetch(`${baseUrl}/api/listings/delete/${id}/`, {
                 method: 'DELETE',
-                headers: {
-                    'Authorization': `Token ${authToken}`,
-                    'X-CSRFToken': getCSRF()
-                }
+                headers: { 'Authorization': `Token ${authToken}`, 'X-CSRFToken': getCSRF() }
             });
             if(res.ok) loadMarketplace();
+            else alert("You can only delete your own listings.");
         }
 
         loadMarketplace();
