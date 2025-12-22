@@ -2,7 +2,7 @@
 
 from django.urls import path
 # Update this import
-from .views import CreateUserView, BookLookupView, ListingCreateView, ListingListView
+from .views import CreateUserView, BookLookupView, ListingCreateView, ListingListView, RegisterView, ListingDeleteView
 from rest_framework_simplejwt.views import TokenObtainPairView
 
 urlpatterns = [
