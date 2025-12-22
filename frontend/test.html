@@ -97,10 +97,17 @@
         // Loop through the books and create small cards for them
         books.forEach(book => {
             const item = document.createElement('div');
-            item.style = "border: 1px solid #ddd; padding: 10px; margin-bottom: 10px; border-radius: 5px; background: #fff;";
+            // Added a flexbox style for a "row" look
+            item.style = "display: flex; gap: 15px; border: 1px solid #ddd; padding: 15px; margin-bottom: 10px; border-radius: 8px; background: #fff; align-items: center;";
+            
             item.innerHTML = `
-                <strong>${book.title}</strong> by ${book.author}<br>
-                <small>ISBN: ${book.isbn} | Condition: ${book.condition} | Price: $${book.price}</small>
+                <img src="${book.cover_image_url}" style="width: 50px; height: 75px; object-fit: cover; border-radius: 4px; background: #eee;">
+                <div>
+                    <strong style="font-size: 1.1em;">${book.title}</strong><br>
+                    <span style="color: #666;">by ${book.author}</span><br>
+                    <small style="background: #e1f5fe; padding: 2px 6px; border-radius: 4px; color: #0288d1;">${book.condition}</small>
+                    <strong style="margin-left: 10px; color: #2e7d32;">$${book.price}</strong>
+                </div>
             `;
             listDiv.appendChild(item);
         });

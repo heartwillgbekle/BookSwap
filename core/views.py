@@ -1,20 +1,18 @@
 # core/views.py
 
 from django.contrib.auth import get_user_model
-from rest_framework import generics
+from rest_framework import generics, permissions, status
 # Add these imports
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
 import requests
 from decouple import config
-from rest_framework import permissions 
 from .models import Listing 
 from .serializers import UserSerializer, ListingSerializer 
 from django.http import HttpResponse
 from rest_framework.generics import ListAPIView
-
 from .serializers import UserSerializer
+from django.contrib.auth.models import User
 
 User = get_user_model()
 
@@ -82,3 +80,25 @@ class ListingListView(ListAPIView):
     queryset = Listing.objects.all().order_by('-created_at') 
     serializer_class = ListingSerializer
     permission_classes = [] 
+
+
+# 1. User Registration View
+class RegisterView(generics.CreateAPIView):
+    queryset = User.objects.all()
+    permission_classes = [permissions.AllowAny] # Anyone can sign up
+    def post(self, request):
+        user = User.objects.create_user(
+            username=request.data['username'],
+            password=request.data['password'],
+            email=request.data.get('email', '')
+        )
+        return Response({"message": "User created successfully"}, status=201)
+
+# 2. Delete Listing View
+class ListingDeleteView(generics.DestroyAPIView):
+    queryset = Listing.objects.all()
+    permission_classes = [permissions.IsAuthenticated] # Only logged-in users can delete
+
+    def get_queryset(self):
+        # Security: Users can only delete their OWN listings
+        return self.queryset.filter(seller=self.request.user)
