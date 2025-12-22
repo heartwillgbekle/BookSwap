@@ -13,6 +13,8 @@ from django.http import HttpResponse
 from rest_framework.generics import ListAPIView
 from .serializers import UserSerializer
 from django.contrib.auth.models import User
+from django.shortcuts import render
+from django.views import View
 
 User = get_user_model()
 
@@ -102,3 +104,7 @@ class ListingDeleteView(generics.DestroyAPIView):
     def get_queryset(self):
         # Security: Users can only delete their OWN listings
         return self.queryset.filter(seller=self.request.user)
+
+class HomeView(View):
+    def get(self, request):
+        return render(request, 'core/index.html')

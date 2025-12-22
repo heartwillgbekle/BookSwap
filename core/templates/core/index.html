@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BookSwap | Student Marketplace</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
+        .hero-bg { 
+            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
+            url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=2000');
+            background-size: cover;
+            background-position: center;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 font-sans text-slate-900">
+
+    <header class="hero-bg min-h-[60vh] flex flex-col items-center justify-center text-white px-4 text-center">
+        <h1 class="text-5xl font-extrabold mb-4 tracking-tight">Swap Books, Save Money.</h1>
+        <p class="text-xl text-slate-200 mb-8 max-w-2xl">The exclusive marketplace for students to trade textbooks and learning materials.</p>
+        
+        <div class="w-full max-w-xl flex bg-white rounded-full overflow-hidden shadow-2xl">
+            <input id="isbn" type="text" placeholder="Search by ISBN..." class="flex-1 px-6 py-4 text-slate-800 focus:outline-none">
+            <button onclick="lookup()" class="bg-indigo-600 px-8 py-4 font-bold hover:bg-indigo-700 transition">Search</button>
+        </div>
+    </header>
+
+    <main class="container mx-auto -mt-16 px-4 pb-20">
+        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
+            
+            <div class="lg:col-span-1 space-y-6">
+                <div class="glass p-6 rounded-2xl shadow-xl border border-white">
+                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
+                        <span id="statusDot" class="w-3 h-3 bg-slate-300 rounded-full transition-colors duration-500"></span> 
+                        Account
+                    </h2>
+                    <div id="authForms">
+                        <input id="user" type="text" placeholder="Username" class="w-full mb-3 p-3 bg-slate-100 rounded-lg focus:ring-2 ring-indigo-500 outline-none border-none">
+                        <input id="pass" type="password" placeholder="Password" class="w-full mb-4 p-3 bg-slate-100 rounded-lg focus:ring-2 ring-indigo-500 outline-none border-none">
+                        <button onclick="login()" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold mb-2 hover:bg-slate-800 transition">Login</button>
+                        <button onclick="register()" class="w-full text-indigo-600 font-semibold py-2">Create Account</button>
+                    </div>
+                    <div id="userInfo" class="hidden text-center py-4">
+                        <p class="text-slate-500 text-sm">Logged in as</p>
+                        <p class="font-bold text-xl text-indigo-600 mb-6" id="usernameDisplay"></p>
+                        <button onclick="location.reload()" class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200">Logout</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="lg:col-span-3">
+                <div id="searchResult" class="hidden glass p-6 rounded-2xl shadow-xl border-2 border-dashed border-indigo-200 mb-8 flex gap-6 items-center">
+                    <img id="resImg" src="" class="w-32 h-44 object-cover rounded-lg shadow-lg bg-gray-200">
+                    <div class="flex-1">
+                        <h3 id="resTitle" class="text-2xl font-bold text-slate-800"></h3>
+                        <p id="resAuthor" class="text-slate-500 mb-4"></p>
+                        <button onclick="saveListing()" class="bg-green-600 text-white px-8 py-3 rounded-lg font-bold hover:bg-green-700 shadow-lg shadow-green-200 transition">List for Sale ($0.00)</button>
+                    </div>
+                </div>
+
+                <div class="flex justify-between items-end mb-6">
+                    <h2 class="text-3xl font-bold">Latest Listings</h2>
+                    <button onclick="loadMarketplace()" class="text-indigo-600 font-bold hover:underline">Refresh Feed</button>
+                </div>
+
+                <div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // 1. THE BASE URL
+        const baseUrl = window.location.origin; 
+        
+        let authToken = "";
+        let currentBook = {};
+
+        // Helper to get input values
+        const val = (id) => document.getElementById(id).value;
+
+        // 2. AUTHENTICATION
+        async function register() {
+            const res = await fetch(`${baseUrl}/api/register/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: val('user'), password: val('pass')})
+            });
+            if(res.ok) alert("Welcome! Your account is ready. Please log in.");
+            else alert("Error: Use a unique username and stronger password.");
+        }
+
+        async function login() {
+            const res = await fetch(`${baseUrl}/api/login/`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({username: val('user'), password: val('pass')})
+            });
+            const data = await res.json();
+            if(data.token) {
+                authToken = data.token;
+                // UI Changes
+                document.getElementById('authForms').classList.add('hidden');
+                document.getElementById('userInfo').classList.remove('hidden');
+                document.getElementById('usernameDisplay').innerText = val('user');
+                document.getElementById('statusDot').classList.replace('bg-slate-300', 'bg-green-500');
+                loadMarketplace();
+            } else {
+                alert("Login failed. Check your username/password.");
+            }
+        }
+
+        // 3. BOOK LOOKUP (GOOGLE BOOKS)
+        async function lookup() {
+            const isbn = val('isbn');
+            if(!isbn) return alert("Please enter an ISBN first.");
+            
+            const res = await fetch(`${baseUrl}/api/books/lookup/?isbn=${isbn}`);
+            if(!res.ok) return alert("Book not found.");
+            
+            currentBook = await res.json();
+            document.getElementById('searchResult').classList.remove('hidden');
+            document.getElementById('resTitle').innerText = currentBook.title;
+            document.getElementById('resAuthor').innerText = currentBook.author;
+            document.getElementById('resImg').src = currentBook.cover_image_url;
+            window.scrollTo({ top: 400, behavior: 'smooth' });
+        }
+
+        // 4. SAVE TO DATABASE
+        async function saveListing() {
+            if(!authToken) return alert("Please login first to list a book!");
+            
+            const res = await fetch(`${baseUrl}/api/listings/create/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Token ${authToken}`
+                },
+                body: JSON.stringify({
+                    title: currentBook.title,
+                    author: currentBook.author,
+                    isbn: val('isbn'),
+                    condition: "GOOD",
+                    price: "0.00",
+                    cover_image_url: currentBook.cover_image_url
+                })
+            });
+            
+            if(res.ok) {
+                alert("Success! Your book is now in the marketplace.");
+                document.getElementById('searchResult').classList.add('hidden');
+                loadMarketplace();
+            } else {
+                alert("Could not save. Is the ISBN already listed?");
+            }
+        }
+
+        // 5. LOAD MARKETPLACE
+        async function loadMarketplace() {
+            const res = await fetch(`${baseUrl}/api/listings/`);
+            const books = await res.json();
+            const container = document.getElementById('marketplace');
+            
+            container.innerHTML = books.map(book => `
+                <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex gap-4 items-center hover:shadow-md transition-shadow">
+                    <img src="${book.cover_image_url}" class="w-20 h-28 object-cover rounded-lg shadow-sm bg-slate-50">
+                    <div class="flex-1">
+                        <h4 class="font-bold text-slate-800 leading-tight">${book.title}</h4>
+                        <p class="text-sm text-slate-500 mb-3">${book.author}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs font-bold bg-indigo-50 px-2 py-1 rounded text-indigo-600 capitalize">${book.condition.toLowerCase()}</span>
+                            <button onclick="deleteBook(${book.id})" class="text-slate-300 hover:text-red-500 transition-colors">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        async function deleteBook(id) {
+            if(!authToken) return alert("Login to delete your listings.");
+            if(!confirm("Remove this book from the marketplace?")) return;
+
+            const res = await fetch(`${baseUrl}/api/listings/delete/${id}/`, {
+                method: 'DELETE',
+                headers: {'Authorization': `Token ${authToken}`}
+            });
+
+            if(res.ok) loadMarketplace();
+            else alert("You can only delete books that YOU listed.");
+        }
+
+        // Load books when page opens
+        loadMarketplace();
+    </script>
+</body>
+</html>
