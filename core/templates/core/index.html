@@ -16,6 +16,7 @@
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-900">
+    {% csrf_token %}
 
     <header class="hero-bg min-h-[60vh] flex flex-col items-center justify-center text-white px-4 text-center">
         <h1 class="text-5xl font-extrabold mb-4 tracking-tight">Swap Books, Save Money.</h1>
@@ -72,36 +73,48 @@
     </main>
 
     <script>
-        // 1. THE BASE URL
         const baseUrl = window.location.origin; 
-        
         let authToken = "";
         let currentBook = {};
 
-        // Helper to get input values
+        // 1. HELPER: Get CSRF token from Django's hidden input
+        function getCSRF() {
+            const token = document.querySelector('[name=csrfmiddlewaretoken]');
+            return token ? token.value : "";
+        }
+
         const val = (id) => document.getElementById(id).value;
 
-        // 2. AUTHENTICATION
+        // 2. AUTHENTICATION (With CSRF Headers)
         async function register() {
             const res = await fetch(`${baseUrl}/api/register/`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRF() // Security Requirement
+                },
                 body: JSON.stringify({username: val('user'), password: val('pass')})
             });
-            if(res.ok) alert("Welcome! Your account is ready. Please log in.");
-            else alert("Error: Use a unique username and stronger password.");
+            if(res.ok) {
+                alert("Welcome! Your account is ready. Please log in.");
+            } else {
+                const err = await res.json();
+                alert("Registration Failed: " + (err.error || "Username taken or weak password."));
+            }
         }
 
         async function login() {
             const res = await fetch(`${baseUrl}/api/login/`, {
                 method: 'POST',
-                headers: {'Content-Type': 'application/json'},
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRFToken': getCSRF() // Security Requirement
+                },
                 body: JSON.stringify({username: val('user'), password: val('pass')})
             });
             const data = await res.json();
             if(data.token) {
                 authToken = data.token;
-                // UI Changes
                 document.getElementById('authForms').classList.add('hidden');
                 document.getElementById('userInfo').classList.remove('hidden');
                 document.getElementById('usernameDisplay').innerText = val('user');
@@ -112,7 +125,7 @@
             }
         }
 
-        // 3. BOOK LOOKUP (GOOGLE BOOKS)
+        // 3. BOOK LOOKUP
         async function lookup() {
             const isbn = val('isbn');
             if(!isbn) return alert("Please enter an ISBN first.");
@@ -128,7 +141,7 @@
             window.scrollTo({ top: 400, behavior: 'smooth' });
         }
 
-        // 4. SAVE TO DATABASE
+        // 4. SAVE LISTING (With Token & CSRF)
         async function saveListing() {
             if(!authToken) return alert("Please login first to list a book!");
             
@@ -136,7 +149,8 @@
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Token ${authToken}`
+                    'Authorization': `Token ${authToken}`,
+                    'X-CSRFToken': getCSRF() // Security Requirement
                 },
                 body: JSON.stringify({
                     title: currentBook.title,
@@ -153,7 +167,7 @@
                 document.getElementById('searchResult').classList.add('hidden');
                 loadMarketplace();
             } else {
-                alert("Could not save. Is the ISBN already listed?");
+                alert("Could not save. Is this book already listed?");
             }
         }
 
@@ -171,9 +185,9 @@
                         <p class="text-sm text-slate-500 mb-3">${book.author}</p>
                         <div class="flex justify-between items-center">
                             <span class="text-xs font-bold bg-indigo-50 px-2 py-1 rounded text-indigo-600 capitalize">${book.condition.toLowerCase()}</span>
-                            <button onclick="deleteBook(${book.id})" class="text-slate-300 hover:text-red-500 transition-colors">
+                            <button onclick="deleteBook(${book.id})" class="text-slate-300 hover:text-red-500 transition-colors p-1">
                                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                                 </svg>
                             </button>
                         </div>
@@ -188,14 +202,17 @@
 
             const res = await fetch(`${baseUrl}/api/listings/delete/${id}/`, {
                 method: 'DELETE',
-                headers: {'Authorization': `Token ${authToken}`}
+                headers: {
+                    'Authorization': `Token ${authToken}`,
+                    'X-CSRFToken': getCSRF() // Security Requirement
+                }
             });
 
             if(res.ok) loadMarketplace();
             else alert("You can only delete books that YOU listed.");
         }
 
-        // Load books when page opens
+        // Initial load
         loadMarketplace();
     </script>
 </body>
