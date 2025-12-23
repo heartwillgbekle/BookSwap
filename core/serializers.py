@@ -20,10 +20,13 @@ class UserSerializer(serializers.ModelSerializer):
             password=validated_data['password']
         )
         return user
-    
+
+
 class ListingSerializer(serializers.ModelSerializer):
+    seller = serializers.ReadOnlyField(source='seller.username')
+    seller_email = serializers.ReadOnlyField(source='seller.email')
+
     class Meta:
         model = Listing
-        fields = ['id', 'title', 'author', 'isbn', 'condition', 'price', 'created_at']
+        fields = ['id', 'title', 'author', 'isbn', 'condition', 'price', 'cover_image_url', 'seller', 'seller_email', 'created_at']
         read_only_fields = ['id', 'seller', 'created_at']
-    
