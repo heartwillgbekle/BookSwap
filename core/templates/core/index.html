@@ -258,19 +258,28 @@
         async function lookup() {
             const query = document.getElementById('book-query').value.trim();
             if(!query) return;
+
             try {
                 const isIsbn = /^\d+$/.test(query.replace(/-/g, ""));
                 const endpoint = isIsbn ? `isbn=${query}` : `q=${encodeURIComponent(query)}`;
-                const res = await fetch(`${baseUrl}/api/books/lookup/?${endpoint}`);
+                
+                const res = await fetch(`/api/books/lookup/?${endpoint}`);
+                
                 if (!res.ok) throw new Error("Not found");
+                
                 const data = await res.json();
                 currentBook = data;
+                
                 const form = document.getElementById('searchResult');
                 form.classList.remove('hidden');
                 document.getElementById('resTitle').innerText = data.title;
                 document.getElementById('resAuthor').innerText = data.author;
                 document.getElementById('resImg').src = data.cover_image_url ? data.cover_image_url.replace('http:', 'https:') : '';
-            } catch (err) { alert("Book not found."); }
+                
+            } catch (err) { 
+                console.error(err);
+                alert("Book not found."); 
+            }
         }
 
         async function saveListing() {
