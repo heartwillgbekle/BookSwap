@@ -49,7 +49,6 @@ class RegisterView(APIView):
 class BookLookupView(APIView):
     """
     Look up book details from Google Books API.
-    Supports both ISBN (?isbn=...) and General Search (?q=...)
     """
     permission_classes = [permissions.AllowAny]
 
@@ -60,7 +59,7 @@ class BookLookupView(APIView):
         if not isbn and not query:
             return Response({'error': 'Provide an ISBN or a search query (q).'}, status=status.HTTP_400_BAD_REQUEST)
 
-        api_key = config('GOOGLE_BOOKS_API_KEY', default='')
+        api_key = config('GOOGLE_BOOKS_API_KEY', default=None)
         
         # Determine search string
         if isbn:
@@ -68,7 +67,12 @@ class BookLookupView(APIView):
         else:
             search_param = query
 
-        url = f'https://www.googleapis.com/books/v1/volumes?q={search_param}&maxResults=1&key={api_key}'
+        # Base URL
+        url = f'https://www.googleapis.com/books/v1/volumes?q={search_param}&maxResults=1'
+        
+        # Only append Key if it actually exists
+        if api_key:
+            url += f'&key={api_key}'
 
         try:
             response = requests.get(url)
@@ -79,14 +83,18 @@ class BookLookupView(APIView):
                 book_info = data['items'][0]['volumeInfo']
                 ids = book_info.get('industryIdentifiers', [])
                 
-                # Try to extract the ISBN-13 if available
+                # Get ISBN safely
                 found_isbn = next((identifier['identifier'] for identifier in ids 
                                  if identifier['type'] == 'ISBN_13'), isbn or "0000000000000")
+
+                # Handle missing images safely
+                image_links = book_info.get('imageLinks') or {}
+                cover = image_links.get('thumbnail') or image_links.get('smallThumbnail', '')
 
                 prefill_data = {
                     'title': book_info.get('title', 'Unknown Title'),
                     'author': ', '.join(book_info.get('authors', ['Unknown Author'])),
-                    'cover_image_url': book_info.get('imageLinks', {}).get('thumbnail', ''),
+                    'cover_image_url': cover,
                     'isbn': found_isbn
                 }
                 return Response(prefill_data)
