@@ -26,10 +26,10 @@ class Listing(models.Model):
 
     CATEGORY_CHOICES = [
         ('STEM', 'Science & Tech'),
-        ('BIZ', 'Business & Econ'),
-        ('HUM', 'Humanities'),
-        ('ART', 'Arts & Design'),
-        ('GEN', 'General / Other'),
+        ('Business & Econs', 'Business & Econ'),
+        ('Humanities', 'Humanities'),
+        ('Art', 'Arts & Design'),
+        ('General', 'General / Other'),
     ]
     
     category = models.CharField(

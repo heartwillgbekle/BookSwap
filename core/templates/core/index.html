@@ -192,7 +192,7 @@
     </section>
 
     <script>
-        const baseUrl = window.location.origin; 
+        // NOTE: We have removed the 'baseUrl' variable to use relative paths automatically.
         let authToken = localStorage.getItem('token');
         let currentBook = {};
         let allBooks = [];
@@ -224,7 +224,8 @@
             const username = document.getElementById('login-user').value;
             const password = document.getElementById('login-pass').value;
             try {
-                const res = await fetch(`${baseUrl}/api/login/`, {
+                // FIXED: Used relative path
+                const res = await fetch(`/api/login/`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                     body: JSON.stringify({ username, password })
@@ -243,7 +244,8 @@
             const username = document.getElementById('reg-user').value;
             const password = document.getElementById('reg-pass').value;
             try {
-                const res = await fetch(`${baseUrl}/api/register/`, {
+                // FIXED: Used relative path
+                const res = await fetch(`/api/register/`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
                     body: JSON.stringify({ username, password })
@@ -284,32 +286,49 @@
 
         async function saveListing() {
             if(!authToken) return alert("Log in first.");
+            
+            // Validation
+            const priceInput = document.getElementById('listPrice').value;
+            const conditionInput = document.getElementById('listCondition').value;
+            if (!priceInput) return alert("Please enter a price.");
+
             try {
-                const res = await fetch(`${baseUrl}/api/listings/create/`, {
+                // FIXED: Used relative path and added error handling
+                const res = await fetch(`/api/listings/create/`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${authToken}`, 'X-CSRFToken': getCSRF() },
                     body: JSON.stringify({
                         title: currentBook.title,
                         author: currentBook.author,
-                        isbn: currentBook.isbn || "0",
-                        condition: document.getElementById('listCondition').value,
+                        isbn: currentBook.isbn || "0000000000000",
+                        condition: conditionInput,
                         category: "GEN",
-                        price: document.getElementById('listPrice').value,
+                        price: priceInput,
                         cover_image_url: currentBook.cover_image_url
                     })
                 });
+                
                 if(res.ok) {
                     alert("Listed!");
                     document.getElementById('searchResult').classList.add('hidden');
                     document.getElementById('book-query').value = "";
                     loadMarketplace();
+                } else {
+                    // Alert the specific error from the server
+                    const errorData = await res.json();
+                    alert("Error listing book: " + JSON.stringify(errorData));
+                    console.error(errorData);
                 }
-            } catch(err) { console.error(err); }
+            } catch(err) { 
+                console.error(err); 
+                alert("Network error."); 
+            }
         }
 
         async function loadMarketplace(filter = 'all') {
             try {
-                const res = await fetch(`${baseUrl}/api/listings/`);
+                // FIXED: Used relative path
+                const res = await fetch(`/api/listings/`);
                 allBooks = await res.json();
                 let displayBooks = allBooks;
                 if (filter === 'mine') {
@@ -361,7 +380,8 @@
 
         async function deleteListing(id) {
             if(!confirm("Remove listing?")) return;
-            await fetch(`${baseUrl}/api/listings/delete/${id}/`, {
+            // FIXED: Used relative path
+            await fetch(`/api/listings/delete/${id}/`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Token ${authToken}`, 'X-CSRFToken': getCSRF() }
             });
