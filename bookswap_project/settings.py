@@ -23,8 +23,8 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = config('SECRET_KEY')
 
-# SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = False
+
+DEBUG = config('DEBUG', default=True, cast=bool)
 
 # settings.py
 
@@ -75,7 +75,7 @@ WSGI_APPLICATION = 'bookswap_project.wsgi.application'
 
 DATABASES = {
     'default': dj_database_url.config(
-        default=f"postgres://{config('DATABASE_USER')}:{config('DATABASE_PASSWORD')}@localhost:5432/{config('DATABASE_NAME')}",
+        default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
         conn_max_age=600
     )
 }

@@ -9,11 +9,11 @@ from .views import (
 )
 
 urlpatterns = [
-    path('register/', RegisterView.as_view(), name='register'),
-    path('books/lookup/', BookLookupView.as_view(), name='book-lookup'),
-    path('listings/', ListingListView.as_view(), name='listing-list'),
-    path('listings/create/', ListingCreateView.as_view(), name='listing-create'),
-    path('listings/delete/<int:pk>/', ListingDeleteView.as_view(), name='listing-delete'),
+    path('api/register/', RegisterView.as_view(), name='register'),
+    path('api/books/lookup/', BookLookupView.as_view(), name='lookup'),
+    path('api/listings/', ListingListView.as_view(), name='listings'),
+    path('api/listings/create/', ListingCreateView.as_view(), name='create'),
+    path('api/listings/delete/<int:pk>/', ListingDeleteView.as_view(), name='delete'),
 ]
 
 

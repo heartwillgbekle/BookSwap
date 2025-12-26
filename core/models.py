@@ -24,6 +24,20 @@ class Listing(models.Model):
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+    CATEGORY_CHOICES = [
+        ('STEM', 'Science & Tech'),
+        ('BIZ', 'Business & Econ'),
+        ('HUM', 'Humanities'),
+        ('ART', 'Arts & Design'),
+        ('GEN', 'General / Other'),
+    ]
+    
+    category = models.CharField(
+        max_length=100, 
+        choices=CATEGORY_CHOICES, 
+        default='GEN'
+    )
+
     def __str__(self):
         return f'"{self.title}" by {self.author} for ${self.price}'
 

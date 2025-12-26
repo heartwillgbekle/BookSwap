@@ -28,5 +28,5 @@ class ListingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Listing
-        fields = ['id', 'title', 'author', 'isbn', 'condition', 'price', 'cover_image_url', 'seller', 'seller_email', 'created_at']
-        read_only_fields = ['id', 'seller', 'created_at']
+        fields = ['id', 'title', 'author', 'isbn', 'condition', 'price', 'category', 'cover_image_url', 'seller', 'seller_email', 'created_at']
+        read_only_fields = ['id', 'seller', 'seller_email', 'created_at']

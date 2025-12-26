@@ -9,320 +9,316 @@
     <style>
         .glass { background: rgba(255, 255, 255, 0.9); backdrop-filter: blur(10px); }
         .hero-bg { 
-            background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
+            background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), 
             url('https://images.unsplash.com/photo-1524995997946-a1c2e315a42f?auto=format&fit=crop&q=80&w=2000');
-            background-size: cover;
-            background-position: center;
+            background-size: cover; background-position: center;
         }
+        .screen { display: none; }
+        .screen.active { display: block; }
     </style>
 </head>
 <body class="bg-slate-50 font-sans text-slate-900">
     {% csrf_token %}
 
-    <header class="hero-bg min-h-[60vh] flex flex-col items-center justify-center text-white px-4 text-center">
-        <h1 class="text-5xl font-extrabold mb-4 tracking-tight">Swap Books, Save Money.</h1>
-        <p class="text-xl text-slate-200 mb-8 max-w-2xl">The exclusive marketplace for students to trade textbooks and learning materials.</p>
-        
-        <div class="w-full max-w-xl">
-            <div class="flex bg-white rounded-full overflow-hidden shadow-2xl">
-                <input id="isbn" type="text" placeholder="Search by ISBN..." class="flex-1 px-6 py-4 text-slate-800 focus:outline-none">
-                <button onclick="lookup()" class="bg-indigo-600 px-8 py-4 font-bold hover:bg-indigo-700 transition">Search</button>
+    <section id="screen-login" class="screen active min-h-screen flex items-center justify-center p-4 hero-bg">
+        <div class="glass p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/20">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-white mb-2">Welcome Back</h1>
+                <p class="text-slate-300">Login to start swapping books</p>
             </div>
-            <p id="isbnError" class="text-red-300 text-sm mt-2 ml-6 hidden font-semibold"></p>
+            <div class="space-y-4">
+                <input id="login-user" type="text" placeholder="Username" class="w-full p-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 outline-none focus:ring-2 ring-indigo-500">
+                <input id="login-pass" type="password" placeholder="Password" class="w-full p-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 outline-none focus:ring-2 ring-indigo-500">
+                <button onclick="login()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 rounded-xl transition shadow-lg">Login</button>
+                <div class="text-center mt-6">
+                    <button onclick="showScreen('screen-register')" class="text-indigo-300 hover:text-white text-sm font-semibold">New here? Create an Account</button>
+                </div>
+            </div>
         </div>
-    </header>
+    </section>
 
-    <main class="container mx-auto -mt-16 px-4 pb-20">
-        <div class="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            
-            <div class="lg:col-span-1 space-y-6">
-                <div class="glass p-6 rounded-2xl shadow-xl border border-white">
-                    <h2 class="text-xl font-bold mb-4 flex items-center gap-2">
-                        <span id="statusDot" class="w-3 h-3 bg-slate-300 rounded-full transition-colors duration-500"></span> 
-                        Account
-                    </h2>
-                    <div id="authForms">
-                        <input id="user" type="text" placeholder="Username" class="w-full mb-3 p-3 bg-slate-100 rounded-lg focus:ring-2 ring-indigo-500 outline-none border-none">
-                        <input id="pass" type="password" placeholder="Password" class="w-full mb-4 p-3 bg-slate-100 rounded-lg focus:ring-2 ring-indigo-500 outline-none border-none">
-                        <button onclick="login()" class="w-full bg-slate-900 text-white py-3 rounded-lg font-bold mb-2 hover:bg-slate-800 transition">Login</button>
-                        <button onclick="register()" class="w-full text-indigo-600 font-semibold py-2">Create Account</button>
-                    </div>
-                    <div id="userInfo" class="hidden text-center py-4">
-                        <p class="text-slate-500 text-sm">Logged in as</p>
-                        <p class="font-bold text-xl text-indigo-600 mb-6" id="usernameDisplay"></p>
-                        <button onclick="location.reload()" class="bg-slate-100 text-slate-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-slate-200">Logout</button>
-                    </div>
+    <section id="screen-register" class="screen min-h-screen flex items-center justify-center p-4 hero-bg">
+        <div class="glass p-8 rounded-3xl shadow-2xl w-full max-w-md border border-white/20">
+            <div class="text-center mb-8">
+                <h1 class="text-3xl font-bold text-white mb-2">Join BookSwap</h1>
+                <p class="text-slate-300">Create your student account</p>
+            </div>
+            <div class="space-y-4">
+                <input id="reg-name" type="text" placeholder="Full Name" class="w-full p-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 outline-none">
+                <input id="reg-user" type="text" placeholder="Choose Username" class="w-full p-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 outline-none">
+                <input id="reg-pass" type="password" placeholder="Password" class="w-full p-4 rounded-xl bg-white/10 border border-white/20 text-white placeholder-slate-400 outline-none">
+                <button onclick="register()" class="w-full bg-green-600 hover:bg-green-700 text-white font-bold py-4 rounded-xl transition shadow-lg">Create Account</button>
+                <button onclick="showScreen('screen-login')" class="w-full text-slate-300 hover:text-white text-sm py-2">Back to Login</button>
+            </div>
+        </div>
+    </section>
+
+    <section id="screen-dashboard" class="screen">
+        <nav class="bg-white border-b sticky top-0 z-50 px-6 py-4 flex justify-between items-center shadow-sm">
+            <h2 class="text-2xl font-black text-indigo-600 tracking-tighter">BookSwap.</h2>
+            <div class="flex items-center gap-4">
+                <span id="display-username" class="font-bold text-slate-700"></span>
+                <button onclick="logout()" class="text-xs bg-slate-100 px-3 py-2 rounded-lg font-bold text-slate-500 hover:bg-red-50 hover:text-red-500 transition">Logout</button>
+            </div>
+        </nav>
+
+        <main class="container mx-auto px-4 py-8 max-w-6xl">
+            <div class="bg-indigo-900 rounded-3xl p-8 mb-12 text-white shadow-2xl shadow-indigo-200">
+                <h2 class="text-2xl font-bold mb-4">Sell or Find a Book</h2>
+                <div class="flex bg-white rounded-2xl overflow-hidden p-2">
+                    <input id="book-query" type="text" placeholder="Enter Title, Author, or ISBN..." class="flex-1 px-4 py-3 text-slate-800 focus:outline-none">
+                    <button onclick="lookup()" class="bg-indigo-600 px-8 py-3 rounded-xl font-bold hover:bg-indigo-700 transition">Search</button>
                 </div>
             </div>
 
-            <div class="lg:col-span-3">
-                <div id="searchResult" class="hidden glass p-6 rounded-2xl shadow-xl border-2 border-dashed border-indigo-200 mb-8 flex gap-6 items-center">
-                    <img id="resImg" src="" class="w-32 h-44 object-cover rounded-lg shadow-lg bg-gray-200">
-                    <div class="flex-1">
-                        <h3 id="resTitle" class="text-2xl font-bold text-slate-800"></h3>
-                        <p id="resAuthor" class="text-slate-500 mb-6"></p>
-                        
-                        <div class="flex gap-4 mb-6">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-10">
+                <div class="lg:col-span-3 space-y-6">
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                        <h3 class="font-bold mb-4 text-slate-400 uppercase text-xs tracking-widest">Dashboard</h3>
+                        <div class="space-y-2">
+                            <button onclick="loadMarketplace('all')" class="w-full text-left p-3 rounded-xl hover:bg-indigo-50 font-bold transition flex justify-between items-center group">
+                                <span>Browse All</span>
+                                <span class="bg-slate-100 text-[10px] px-2 py-1 rounded-md" id="count-all">0</span>
+                            </button>
+                            <button onclick="loadMarketplace('mine')" class="w-full text-left p-3 rounded-xl hover:bg-indigo-50 font-bold transition flex justify-between items-center group">
+                                <span>My Listings</span>
+                                <span class="bg-slate-100 text-[10px] px-2 py-1 rounded-md" id="count-mine">0</span>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="bg-white p-6 rounded-2xl border shadow-sm">
+                        <h3 class="font-bold mb-4 text-slate-400 uppercase text-xs tracking-widest">Categories</h3>
+                        <div class="space-y-1">
+                            <button onclick="filterByCategory('STEM')" class="w-full text-left p-2 rounded-lg hover:bg-indigo-50 text-sm transition">🔬 Science & Tech</button>
+                            <button onclick="filterByCategory('BIZ')" class="w-full text-left p-2 rounded-lg hover:bg-indigo-50 text-sm transition">📈 Business</button>
+                            <button onclick="filterByCategory('HUM')" class="w-full text-left p-2 rounded-lg hover:bg-indigo-50 text-sm transition">📚 Humanities</button>
+                            <button onclick="filterByCategory('ART')" class="w-full text-left p-2 rounded-lg hover:bg-indigo-50 text-sm transition">🎨 Arts</button>
+                            <button onclick="filterByCategory('GEN')" class="w-full text-left p-2 rounded-lg hover:bg-indigo-50 text-sm transition">🌐 General</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="lg:col-span-9">
+                    <div id="searchResult" class="hidden bg-white p-6 rounded-3xl shadow-xl border-2 border-indigo-100 mb-10">
+                        <div class="flex flex-col md:flex-row gap-8 items-center">
+                            <img id="resImg" src="" class="w-40 h-56 object-cover rounded-2xl shadow-2xl">
                             <div class="flex-1">
-                                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Price ($)</label>
-                                <input id="listPrice" type="number" step="0.01" placeholder="0.00" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200 focus:ring-2 ring-indigo-500 outline-none">
-                            </div>
-                            <div class="flex-1">
-                                <label class="block text-xs font-bold text-slate-400 uppercase mb-1">Condition</label>
-                                <select id="listCondition" class="w-full p-3 bg-slate-50 rounded-lg border border-slate-200 focus:ring-2 ring-indigo-500 outline-none">
-                                    <option value="NEW">New</option>
-                                    <option value="LIKE_NEW">Like New</option>
-                                    <option value="GOOD" selected>Good</option>
-                                    <option value="FAIR">Fair</option>
-                                    <option value="POOR">Poor</option>
-                                </select>
+                                <h3 id="resTitle" class="text-3xl font-extrabold text-slate-800"></h3>
+                                <p id="resAuthor" class="text-slate-500 mb-6"></p>
+                                
+                                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-1">PRICE ($)</label>
+                                        <input id="listPrice" type="number" step="0.01" class="w-full p-3 bg-slate-50 rounded-xl border">
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-1">CONDITION</label>
+                                        <select id="listCondition" class="w-full p-3 bg-slate-50 rounded-xl border">
+                                            <option value="NEW">New</option>
+                                            <option value="GOOD" selected>Good</option>
+                                            <option value="POOR">Used</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <label class="block text-xs font-bold text-slate-400 mb-1">CATEGORY</label>
+                                        <select id="listCategory" class="w-full p-3 bg-slate-50 rounded-xl border">
+                                            <option value="STEM">Science</option>
+                                            <option value="BIZ">Business</option>
+                                            <option value="HUM">Humanities</option>
+                                            <option value="ART">Arts</option>
+                                            <option value="GEN" selected>General</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <button onclick="saveListing()" class="w-full bg-indigo-600 text-white py-4 rounded-2xl font-black">List Book</button>
                             </div>
                         </div>
-
-                        <button onclick="saveListing()" class="w-full bg-green-600 text-white py-4 rounded-xl font-bold hover:bg-green-700 shadow-lg shadow-green-100 transition transform hover:-translate-y-1">Confirm & Post Listing</button>
                     </div>
+
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+                        <h2 id="feed-title" class="text-2xl font-bold">Latest Listings</h2>
+                        <div class="flex gap-2 w-full md:w-auto">
+                            <select id="priceSort" onchange="sortMarketplace()" class="bg-white border border-slate-200 rounded-xl px-3 py-2 text-sm outline-none">
+                                <option value="newest">Newest First</option>
+                                <option value="low">Price: Low to High</option>
+                                <option value="high">Price: High to Low</option>
+                            </select>
+                            <div class="relative flex-1 md:w-64">
+                                <input id="marketSearch" onkeyup="filterBooks()" type="text" placeholder="Search title..." class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm">
+                                <span class="absolute left-3 top-2.5">🔍</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 gap-6"></div>
                 </div>
-
-                <div class="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-                    <h2 class="text-3xl font-bold">Latest Listings</h2>
-                    
-                    <div class="relative w-full md:w-64">
-                        <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                            </svg>
-                        </span>
-                        <input id="marketSearch" onkeyup="filterBooks()" type="text" placeholder="Search title or author..." 
-                            class="w-full pl-10 pr-4 py-2 bg-white border border-slate-200 rounded-xl text-sm focus:ring-2 ring-indigo-500 outline-none shadow-sm">
-                    </div>
-                </div>
-
-                <div id="marketplace" class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    </div>
             </div>
-        </div>
-    </main>
+        </main>
+    </section>
 
     <script>
         const baseUrl = window.location.origin; 
         let authToken = "";
         let currentBook = {};
         let allBooks = [];
+        let filteredBooks = []; // Temporary holder for the sorted/searched list
+        let currentUsername = "";
 
-        // Helper: Convert insecure URLs to secure HTTPS
-        function secureUrl(url) {
-            if (!url || typeof url !== 'string') {
-                return 'https://via.placeholder.com/150/e2e8f0/64748b?text=No+Cover';
-            }
-            return url.trim().replace('http://', 'https://');
-        }
-
-        function getCSRF() {
-            const token = document.querySelector('[name=csrfmiddlewaretoken]');
-            return token ? token.value : "";
+        function showScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
         }
 
         const val = (id) => document.getElementById(id).value;
+        const secureUrl = (url) => url ? url.replace('http://', 'https://') : 'https://via.placeholder.com/150';
 
-        // AUTHENTICATION
-        async function register() {
-            const res = await fetch(`${baseUrl}/api/register/`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
-                body: JSON.stringify({username: val('user'), password: val('pass')})
-            });
-            if(res.ok) alert("Welcome! Your account is ready. Please log in.");
-            else alert("Error: Use a unique username.");
+        function getCSRF() {
+            return document.querySelector('[name=csrfmiddlewaretoken]')?.value || "";
         }
 
+        // AUTH
         async function login() {
+            const username = val('login-user');
             const res = await fetch(`${baseUrl}/api/login/`, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
-                body: JSON.stringify({username: val('user'), password: val('pass')})
+                body: JSON.stringify({ username, password: val('login-pass') })
             });
             const data = await res.json();
             if(data.token) {
                 authToken = data.token;
-                document.getElementById('authForms').classList.add('hidden');
-                document.getElementById('userInfo').classList.remove('hidden');
-                document.getElementById('usernameDisplay').innerText = val('user');
-                document.getElementById('statusDot').classList.replace('bg-slate-300', 'bg-green-500');
+                currentUsername = username;
+                document.getElementById('display-username').innerText = username;
+                showScreen('screen-dashboard');
                 loadMarketplace();
-            } else {
-                alert("Login failed.");
-            }
+            } else { alert("Login failed."); }
         }
 
-        // IMPROVED BOOK LOOKUP
-        async function lookup() {
-            const isbnInput = val('isbn');
-            const cleanIsbn = isbnInput.replace(/[^0-9]/g, ""); // Remove dashes/spaces
-            const errorEl = document.getElementById('isbnError');
-            
-            errorEl.classList.add('hidden');
-
-            if(!cleanIsbn) return alert("Please enter an ISBN first.");
-            
-            if(cleanIsbn.length > 13) {
-                errorEl.innerText = "ISBN too long (Max 13 digits)";
-                errorEl.classList.remove('hidden');
-                return;
-            }
-            
-            const searchBtn = document.querySelector('button[onclick="lookup()"]');
-            searchBtn.innerText = "Searching...";
-
-            try {
-                const res = await fetch(`${baseUrl}/api/books/lookup/?isbn=${cleanIsbn}`);
-                if(!res.ok) throw new Error("Book not found.");
-                
-                const data = await res.json();
-                currentBook = {
-                    ...data,
-                    cover_image_url: secureUrl(data.cover_image_url) 
-                };
-
-                document.getElementById('searchResult').classList.remove('hidden');
-                document.getElementById('resTitle').innerText = currentBook.title;
-                document.getElementById('resAuthor').innerText = currentBook.author;
-                document.getElementById('resImg').src = currentBook.cover_image_url;
-                window.scrollTo({ top: 400, behavior: 'smooth' });
-            } catch (err) {
-                alert("We couldn't find that ISBN. Check the number on the back of the book.");
-            } finally {
-                searchBtn.innerText = "Search";
-            }
-        }
-
-        // SAVE LISTING
-        async function saveListing() {
-            if(!authToken) return alert("Please login first to list a book!");
-            
-            // Format price to 2 decimal places (e.g., "12.50")
-            const priceInput = val('listPrice') || "0.00";
-            const formattedPrice = parseFloat(priceInput).toFixed(2);
-            
-            const cleanIsbn = val('isbn').replace(/[^0-9]/g, "");
-
-            const res = await fetch(`${baseUrl}/api/listings/create/`, {
+        async function register() {
+            const res = await fetch(`${baseUrl}/api/register/`, {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Token ${authToken}`,
-                    'X-CSRFToken': getCSRF()
-                },
-                body: JSON.stringify({
-                    title: currentBook.title,
-                    author: currentBook.author,
-                    isbn: cleanIsbn,
-                    condition: document.getElementById('listCondition').value,
-                    price: formattedPrice,
-                    cover_image_url: currentBook.cover_image_url
-                })
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCSRF() },
+                body: JSON.stringify({ username: val('reg-user'), password: val('reg-pass') })
             });
-            
-            if(res.ok) {
-                alert(`Success! Listed for $${formattedPrice}`);
-                document.getElementById('searchResult').classList.add('hidden');
-                loadMarketplace();
-            } else {
-                const errorData = await res.json();
-                console.log("Server Error:", errorData);
-                // Map server errors to a readable alert
-                let msg = Object.entries(errorData).map(([k, v]) => `${k}: ${v}`).join("\n");
-                alert("Save failed:\n" + msg);
-            }
+            if(res.ok) { alert("Ready! Log in now."); showScreen('screen-login'); }
         }
 
-        // LOAD MARKETPLACE
-        async function loadMarketplace() {
+        function logout() { location.reload(); }
+
+        // SEARCH BOOKS
+        async function lookup() {
+            const query = val('book-query').trim();
+            if(!query) return;
+            try {
+                const isIsbn = /^\d+$/.test(query.replace(/-/g, ""));
+                const url = isIsbn ? `${baseUrl}/api/books/lookup/?isbn=${query}` : `${baseUrl}/api/books/lookup/?q=${encodeURIComponent(query)}`;
+                const res = await fetch(url);
+                const data = await res.json();
+                currentBook = data;
+                document.getElementById('searchResult').classList.remove('hidden');
+                document.getElementById('resTitle').innerText = data.title;
+                document.getElementById('resAuthor').innerText = data.author;
+                document.getElementById('resImg').src = secureUrl(data.cover_image_url);
+            } catch (err) { alert("Book not found."); }
+        }
+
+        // MARKETPLACE LOGIC
+        async function loadMarketplace(filter = 'all') {
             try {
                 const res = await fetch(`${baseUrl}/api/listings/`);
-                // Store the data globally so we can filter it without re-fetching
-                allBooks = await res.json(); 
-                // Render the full list initially
-                renderMarketplace(allBooks); 
-            } catch (err) {
-                console.error("Failed to load marketplace:", err);
-                document.getElementById('marketplace').innerHTML = `<p class="col-span-2 text-center py-10 text-red-400">Error loading feed.</p>`;
-            }
+                allBooks = await res.json();
+                filteredBooks = [...allBooks]; // Start with all
+
+                document.getElementById('count-all').innerText = allBooks.length;
+                document.getElementById('count-mine').innerText = allBooks.filter(b => b.seller === currentUsername).length;
+
+                if(filter === 'mine') {
+                    filteredBooks = allBooks.filter(b => b.seller === currentUsername);
+                    document.getElementById('feed-title').innerText = "My Listings";
+                } else {
+                    document.getElementById('feed-title').innerText = "Latest Listings";
+                }
+
+                sortMarketplace(); // Apply default sort and render
+            } catch (err) { console.error(err); }
         }
 
-        
+        function filterByCategory(catCode) {
+            filteredBooks = allBooks.filter(book => book.category === catCode);
+            document.getElementById('feed-title').innerText = catCode + " Books";
+            renderMarketplace(filteredBooks);
+        }
+
         function filterBooks() {
-            const query = val('marketSearch').toLowerCase();
-            
-            const filtered = allBooks.filter(book => 
-                book.title.toLowerCase().includes(query) || 
-                book.author.toLowerCase().includes(query)
-            );
-            
+            const q = val('marketSearch').toLowerCase();
+            const filtered = filteredBooks.filter(b => b.title.toLowerCase().includes(q) || b.author.toLowerCase().includes(q));
             renderMarketplace(filtered);
         }
 
-        // NEW: Helper function to draw the cards (to avoid repeating code)
+        function sortMarketplace() {
+            const criteria = val('priceSort');
+            let sorted = [...filteredBooks];
+
+            if (criteria === 'low') sorted.sort((a, b) => a.price - b.price);
+            else if (criteria === 'high') sorted.sort((a, b) => b.price - a.price);
+            else sorted.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+            renderMarketplace(sorted);
+        }
+
         function renderMarketplace(books) {
             const container = document.getElementById('marketplace');
-            
             if (books.length === 0) {
-                container.innerHTML = `<p class="col-span-2 text-center py-10 text-slate-400">No books match your search.</p>`;
+                container.innerHTML = `<div class="col-span-2 text-center py-20 text-slate-400">No books found.</div>`;
                 return;
             }
-
             container.innerHTML = books.map(book => `
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 flex gap-5 items-center hover:shadow-xl hover:border-indigo-100 transition-all group">
+                <div class="bg-white p-5 rounded-3xl border flex gap-5 items-center hover:shadow-xl transition-all">
                     <div class="relative flex-shrink-0">
-                        <img src="${secureUrl(book.cover_image_url)}" 
-                            onerror="this.src='https://via.placeholder.com/150/e2e8f0/64748b?text=Error'"
-                            class="w-24 h-32 object-cover rounded-xl shadow-md bg-slate-50 transition-transform group-hover:scale-105">
-                        <div class="absolute -top-2 -right-2 bg-indigo-600 text-white text-xs font-bold px-2 py-1 rounded-lg shadow-lg">
-                            $${book.price}
-                        </div>
+                        <img src="${secureUrl(book.cover_image_url)}" class="w-24 h-32 object-cover rounded-2xl">
+                        <div class="absolute -top-2 -right-2 bg-indigo-600 text-white text-[10px] font-bold px-2 py-1 rounded-lg">$${book.price}</div>
                     </div>
                     <div class="flex-1 min-w-0">
-                        <h4 class="font-bold text-slate-800 leading-tight mb-1 truncate">${book.title}</h4>
-                        <p class="text-sm text-slate-400 mb-2 italic truncate">${book.author}</p>
-                        
-                        <div class="flex items-center gap-2 mb-4">
-                            <div class="w-5 h-5 bg-indigo-100 rounded-full flex items-center justify-center">
-                                <span class="text-[10px] font-bold text-indigo-600">${book.seller ? book.seller[0].toUpperCase() : 'U'}</span>
+                        <h4 class="font-bold truncate">${book.title}</h4>
+                        <p class="text-xs text-slate-400 mb-2">${book.author}</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-[10px] bg-slate-100 px-2 py-1 rounded text-slate-500 font-bold uppercase">${book.category || 'GEN'}</span>
+                            <div class="flex gap-2">
+                                <a href="mailto:${book.seller_email}" class="p-2 bg-indigo-50 text-indigo-600 rounded-lg">📧</a>
+                                ${book.seller === currentUsername ? `<button onclick="deleteBook(${book.id})" class="p-2 bg-red-50 text-red-500 rounded-lg">🗑️</button>` : ''}
                             </div>
-                            <span class="text-xs text-slate-500 font-medium">${book.seller}</span>
-                        </div>
-
-                        <div class="flex justify-between items-center gap-2">
-                            <a href="mailto:${book.seller_email}?subject=Interested in ${book.title}" 
-                            class="flex-1 bg-slate-900 text-white text-center py-2 rounded-lg text-xs font-bold hover:bg-indigo-600 transition-colors">
-                                Contact Seller
-                            </a>
-                            
-                            ${book.seller === val('user') ? `
-                                <button onclick="deleteBook(${book.id})" class="text-slate-300 hover:text-red-500 transition-colors p-2 rounded-full hover:bg-red-50">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                    </svg>
-                                </button>
-                            ` : ''}
                         </div>
                     </div>
                 </div>
             `).join('');
         }
 
+        async function saveListing() {
+            const res = await fetch(`${baseUrl}/api/listings/create/`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'Authorization': `Token ${authToken}`, 'X-CSRFToken': getCSRF() },
+                body: JSON.stringify({
+                    title: currentBook.title,
+                    author: currentBook.author,
+                    isbn: currentBook.isbn || "0",
+                    condition: val('listCondition'),
+                    category: val('listCategory'),
+                    price: parseFloat(val('listPrice')).toFixed(2),
+                    cover_image_url: currentBook.cover_image_url
+                })
+            });
+            if(res.ok) { alert("Listed!"); document.getElementById('searchResult').classList.add('hidden'); loadMarketplace(); }
+        }
 
         async function deleteBook(id) {
-            if(!authToken) return alert("Login first.");
-            if(!confirm("Remove listing?")) return;
+            if(!confirm("Delete?")) return;
             const res = await fetch(`${baseUrl}/api/listings/delete/${id}/`, {
                 method: 'DELETE',
                 headers: { 'Authorization': `Token ${authToken}`, 'X-CSRFToken': getCSRF() }
             });
             if(res.ok) loadMarketplace();
-            else alert("You can only delete your own listings.");
         }
-
-        loadMarketplace();
     </script>
 </body>
 </html>
