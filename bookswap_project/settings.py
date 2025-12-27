@@ -26,9 +26,13 @@ SECRET_KEY = config('SECRET_KEY')
 
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-# settings.py
-
-ALLOWED_HOSTS = ['seashell-app-t7cwg.ondigitalocean.app', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'swaphub.me', 
+    'www.swaphub.me', 
+    'seashell-app-t7cwg.ondigitalocean.app',
+    'localhost', 
+    '127.0.0.1'
+]
 
 # Option B: Wildcard (Easiest for testing)
 # ALLOWED_HOSTS = ['*']
@@ -149,3 +153,8 @@ STATIC_ROOT = BASE_DIR / "staticfiles"
 STATICFILES_STORAGE = "whitenoise.storage.CompressedManifestStaticFilesStorage"
 
 CORS_ALLOW_ALL_ORIGINS = True
+
+CSRF_TRUSTED_ORIGINS = [
+    'https://swaphub.me',
+    'https://www.swaphub.me'
+]
