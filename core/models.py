@@ -16,7 +16,7 @@ class Listing(models.Model):
     seller = models.ForeignKey(User, on_delete=models.CASCADE)
     title = models.CharField(max_length=255)
     author = models.CharField(max_length=255)
-    isbn = models.CharField(max_length=13, unique=True)
+    isbn = models.CharField(max_length=13)
     cover_image_url = models.URLField(max_length=500)
     price = models.DecimalField(max_digits=6, decimal_places=2)
     condition = models.CharField(max_length=8, choices=CONDITION_CHOICES)
