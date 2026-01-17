@@ -52,7 +52,13 @@ INSTALLED_APPS = [
     'rest_framework.authtoken',
     'corsheaders',
     'core',
+    'django.contrib.sites',    
+    'allauth',                
+    'allauth.account',           
+    'dj_rest_auth.registration',
 ]
+
+SITE_ID = 1
 
 ROOT_URLCONF = 'bookswap_project.urls'
 
