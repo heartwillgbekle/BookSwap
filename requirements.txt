@@ -2,7 +2,8 @@ asgiref==3.11.0
 certifi==2025.8.3
 charset-normalizer==3.4.3
 dj-database-url==3.0.1
-Django==6.0
+dj-rest-auth==7.0.2
+Django==5.2.10
 django-cors-headers==4.9.0
 django-decouple==2.1
 djangorestframework==3.16.1
