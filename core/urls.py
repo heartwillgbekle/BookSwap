@@ -1,14 +1,19 @@
 # core/urls.py
-from django.urls import path
+from django.urls import path, include
 from rest_framework.authtoken.views import obtain_auth_token 
+from rest_framework.routers import DefaultRouter
 from .views import (
     HomeView,          
     BookLookupView, 
     ListingCreateView, 
     ListingListView, 
     ListingDeleteView, 
-    RegisterView 
+    RegisterView,
+    ListingViewSet
 )
+
+router = DefaultRouter()
+router.register(r'listings', ListingViewSet, basename='listing')
 
 urlpatterns = [
     # 1. The Homepage (Loads your index.html)
@@ -23,4 +28,7 @@ urlpatterns = [
     path('api/listings/', ListingListView.as_view(), name='listings'),
     path('api/listings/create/', ListingCreateView.as_view(), name='create'),
     path('api/listings/delete/<int:pk>/', ListingDeleteView.as_view(), name='delete'),
+
+    path('api/', include(router.urls)), 
+    path('api-auth/', include('rest_framework.urls')), 
 ]

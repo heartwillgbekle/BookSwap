@@ -7,7 +7,7 @@ from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 
-from rest_framework import generics, permissions, status
+from rest_framework import generics, permissions, status, viewsets
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.generics import ListAPIView
@@ -127,3 +127,8 @@ class ListingDeleteView(generics.DestroyAPIView):
     def get_queryset(self):
         # Security: Filter queryset so user can only delete their own books
         return self.queryset.filter(seller=self.request.user)
+    
+
+class ListingViewSet(viewsets.ModelViewSet):
+    queryset = Listing.objects.all().order_by('-created_at')
+    serializer_class = ListingSerializer
