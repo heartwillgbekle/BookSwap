@@ -173,3 +173,10 @@ CSRF_TRUSTED_ORIGINS = [
     'https://swaphub.me',
     'https://www.swaphub.me'
 ]
+
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+ACCOUNT_EMAIL_VERIFICATION = 'none'
+ACCOUNT_EMAIL_REQUIRED = True
