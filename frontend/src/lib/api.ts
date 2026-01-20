@@ -7,8 +7,9 @@ export interface Book {
   author: string;
   isbn: string;
   price: string;
-  category: "STEM" | "BUSINESS" | "HUMANITIES";
-  condition: "NEW" | "LIKE_NEW" | "GOOD" | "FAIR";
+  // Updated to match models.py
+  category: "STEM" | "Business & Econs" | "Humanities" | "Art" | "General";
+  condition: "LIKE_NEW" | "GOOD" | "FAIR" | "POOR"; 
   cover_image_url: string;
   seller_email: string;
   description?: string;
@@ -110,7 +111,6 @@ class ApiClient {
 
     if (!response.ok) {
       const errorData = await response.json().catch(() => ({}));
-      // Handle field-specific errors from 400 responses
       const firstErrorKey = Object.keys(errorData)[0];
       if (firstErrorKey && Array.isArray(errorData[firstErrorKey])) {
         throw new Error(errorData[firstErrorKey][0]);
@@ -136,7 +136,13 @@ class ApiClient {
     return this.request<Book[]>("/api/listings/");
   }
 
-  async getListing(id: number): Promise<Book> {
+  // Gets a single listing by ID (alias for getBook to support both naming conventions)
+  async getListing(id: number | string): Promise<Book> {
+    return this.request<Book>(`/api/listings/${id}/`);
+  }
+  
+  // Also needed for BookDetails.tsx
+  async getBook(id: string): Promise<Book> {
     return this.request<Book>(`/api/listings/${id}/`);
   }
 
@@ -187,30 +193,34 @@ export function generateMailtoLink(book: Book): string {
   return `mailto:${book.seller_email}?subject=${subject}&body=${body}`;
 }
 
-// Condition display helpers
+// Condition display helpers (Matches models.py)
 export const conditionLabels: Record<string, string> = {
-  NEW: "New",
   LIKE_NEW: "Like New",
   GOOD: "Good",
   FAIR: "Fair",
+  POOR: "Poor",
 };
 
 export const conditionColors: Record<string, string> = {
-  NEW: "bg-condition-new",
-  LIKE_NEW: "bg-condition-like-new",
-  GOOD: "bg-condition-good",
-  FAIR: "bg-condition-fair",
+  LIKE_NEW: "bg-green-500",
+  GOOD: "bg-blue-500",
+  FAIR: "bg-yellow-500",
+  POOR: "bg-orange-500",
 };
 
-// Category display helpers
+// Category display helpers (Matches models.py)
 export const categoryLabels: Record<string, string> = {
-  STEM: "STEM",
-  BUSINESS: "Business",
-  HUMANITIES: "Humanities",
+  "STEM": "Science & Tech",
+  "Business & Econs": "Business & Econ",
+  "Humanities": "Humanities",
+  "Art": "Arts & Design",
+  "General": "General / Other"
 };
 
 export const categoryColors: Record<string, string> = {
-  STEM: "bg-stem",
-  BUSINESS: "bg-business",
-  HUMANITIES: "bg-humanities",
+  "STEM": "bg-indigo-500",
+  "Business & Econs": "bg-blue-600",
+  "Humanities": "bg-pink-500",
+  "Art": "bg-purple-500",
+  "General": "bg-gray-500"
 };

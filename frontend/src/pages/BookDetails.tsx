@@ -63,7 +63,7 @@ const BookDetails = () => {
 
   const { data: book, isLoading, error } = useQuery({
     queryKey: ["listing", id],
-    queryFn: () => api.getListing(Number(id)),
+    queryFn: () => api.getListing(id!), // Using id directly
     enabled: !!id,
   });
 
@@ -108,8 +108,8 @@ const BookDetails = () => {
         {book && (
           <div className="grid md:grid-cols-2 gap-8 lg:gap-12">
             {/* Left Side: Book Cover */}
-            <div className="glass-card overflow-hidden bg-secondary/50">
-              <div className="aspect-[3/4]">
+            <div className="glass-card overflow-hidden bg-secondary/50 p-4 flex items-center justify-center">
+              <div className="w-full max-w-sm aspect-[3/4]">
                 <BookCover imageUrl={book.cover_image_url} title={book.title} />
               </div>
             </div>
@@ -119,12 +119,12 @@ const BookDetails = () => {
               {/* Category & Condition Badges */}
               <div className="flex flex-wrap gap-3">
                 <span
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium text-white ${categoryColors[book.category]}`}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium text-white ${categoryColors[book.category] || 'bg-gray-500'}`}
                 >
                   {categoryLabels[book.category] || book.category}
                 </span>
                 <span
-                  className={`px-3 py-1.5 rounded-full text-sm font-medium text-white ${conditionColors[book.condition]}`}
+                  className={`px-3 py-1.5 rounded-full text-sm font-medium text-white ${conditionColors[book.condition] || 'bg-gray-500'}`}
                 >
                   {conditionLabels[book.condition] || book.condition}
                 </span>
@@ -151,15 +151,15 @@ const BookDetails = () => {
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <p className="text-sm text-muted-foreground">ISBN</p>
-                    <p className="font-medium">{book.isbn}</p>
+                    <p className="font-medium">{book.isbn || "N/A"}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Condition</p>
-                    <p className="font-medium">{conditionLabels[book.condition]}</p>
+                    <p className="font-medium">{conditionLabels[book.condition] || book.condition}</p>
                   </div>
                   <div>
                     <p className="text-sm text-muted-foreground">Category</p>
-                    <p className="font-medium">{categoryLabels[book.category]}</p>
+                    <p className="font-medium">{categoryLabels[book.category] || book.category}</p>
                   </div>
                 </div>
 

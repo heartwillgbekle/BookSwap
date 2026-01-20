@@ -1,11 +1,14 @@
 import { Search } from "lucide-react";
 import { Input } from "@/components/ui/input";
 
+// UPDATED: Values match models.py CATEGORY_CHOICES keys
 const categories = [
   { value: "", label: "All Categories" },
-  { value: "STEM", label: "STEM" },
-  { value: "BUSINESS", label: "Business" },
-  { value: "HUMANITIES", label: "Humanities" },
+  { value: "STEM", label: "Science & Tech" },
+  { value: "Business & Econs", label: "Business & Econ" },
+  { value: "Humanities", label: "Humanities" },
+  { value: "Art", label: "Arts & Design" },
+  { value: "General", label: "General / Other" },
 ];
 
 interface SearchFilterProps {

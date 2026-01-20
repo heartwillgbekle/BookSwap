@@ -64,14 +64,13 @@ const BookCover = ({
   );
 };
 
-// Schema updated to match models.py choices exactly
+// --- UPDATED SCHEMA TO MATCH MODELS.PY ---
 const listingSchema = z.object({
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Enter a valid price (e.g., 45.00)"),
-  // Updated Categories based on models.py
   category: z.enum(["STEM", "Business & Econs", "Humanities", "Art", "General"], {
     required_error: "Please select a category",
   }),
-  // Updated Conditions based on models.py (Removed NEW, Added POOR)
+  // Removed "NEW", added "POOR" to match backend
   condition: z.enum(["LIKE_NEW", "GOOD", "FAIR", "POOR"], {
     required_error: "Please select condition",
   }),
@@ -79,7 +78,7 @@ const listingSchema = z.object({
 
 type ListingForm = z.infer<typeof listingSchema>;
 
-const Sell = () => {
+const SellBook = () => {
   const { isAuthenticated, isLoading: authLoading } = useAuth();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
@@ -166,7 +165,6 @@ const Sell = () => {
     });
   };
 
-  // Redirect to login if not authenticated
   if (!authLoading && !isAuthenticated) {
     return <Navigate to="/login" replace />;
   }
@@ -185,7 +183,6 @@ const Sell = () => {
             </p>
           </div>
 
-          {/* Step 1: Search for Book */}
           {!foundBook && (
             <div className="glass-card p-8">
               <div className="space-y-4">
@@ -219,10 +216,8 @@ const Sell = () => {
             </div>
           )}
 
-          {/* Step 2: Book Found - Show Details and Listing Form */}
           {foundBook && (
             <div className="glass-card p-8">
-              {/* Found Book Preview */}
               <div className="flex gap-6 mb-8 pb-6 border-b border-border">
                 <div className="w-24 h-36 flex-shrink-0 rounded-lg overflow-hidden">
                   <BookCover imageUrl={foundBook.image_url} title={foundBook.title} />
@@ -246,7 +241,6 @@ const Sell = () => {
                 </div>
               </div>
 
-              {/* Listing Form */}
               <Form {...form}>
                 <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
                   <div className="grid md:grid-cols-3 gap-6">
@@ -281,7 +275,7 @@ const Sell = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {/* Values matched to CATEGORY_CHOICES keys in models.py */}
+                              {/* --- UPDATED CATEGORIES --- */}
                               <SelectItem value="STEM">Science & Tech</SelectItem>
                               <SelectItem value="Business & Econs">Business & Econ</SelectItem>
                               <SelectItem value="Humanities">Humanities</SelectItem>
@@ -307,7 +301,7 @@ const Sell = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              {/* Values matched to CONDITION_CHOICES keys in models.py */}
+                              {/* --- UPDATED CONDITIONS --- */}
                               <SelectItem value="LIKE_NEW">Like New</SelectItem>
                               <SelectItem value="GOOD">Good</SelectItem>
                               <SelectItem value="FAIR">Fair</SelectItem>
@@ -347,4 +341,4 @@ const Sell = () => {
   );
 };
 
-export default Sell;
+export default SellBook;
