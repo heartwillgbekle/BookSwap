@@ -24,7 +24,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Loader2, Plus, Search, X, BookOpen } from "lucide-react";
+import { Loader2, Plus, Search, X } from "lucide-react";
 import { toast } from "@/hooks/use-toast";
 
 // Book cover component with graceful fallback
@@ -64,13 +64,15 @@ const BookCover = ({
   );
 };
 
-// Schema for the listing form (after book is found)
+// Schema updated to match models.py choices exactly
 const listingSchema = z.object({
   price: z.string().regex(/^\d+(\.\d{1,2})?$/, "Enter a valid price (e.g., 45.00)"),
-  category: z.enum(["STEM", "BUSINESS", "HUMANITIES"], {
+  // Updated Categories based on models.py
+  category: z.enum(["STEM", "Business & Econs", "Humanities", "Art", "General"], {
     required_error: "Please select a category",
   }),
-  condition: z.enum(["NEW", "LIKE_NEW", "GOOD", "FAIR"], {
+  // Updated Conditions based on models.py (Removed NEW, Added POOR)
+  condition: z.enum(["LIKE_NEW", "GOOD", "FAIR", "POOR"], {
     required_error: "Please select condition",
   }),
 });
@@ -279,9 +281,12 @@ const Sell = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="STEM">STEM</SelectItem>
-                              <SelectItem value="BUSINESS">Business</SelectItem>
-                              <SelectItem value="HUMANITIES">Humanities</SelectItem>
+                              {/* Values matched to CATEGORY_CHOICES keys in models.py */}
+                              <SelectItem value="STEM">Science & Tech</SelectItem>
+                              <SelectItem value="Business & Econs">Business & Econ</SelectItem>
+                              <SelectItem value="Humanities">Humanities</SelectItem>
+                              <SelectItem value="Art">Arts & Design</SelectItem>
+                              <SelectItem value="General">General / Other</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
@@ -302,10 +307,11 @@ const Sell = () => {
                               </SelectTrigger>
                             </FormControl>
                             <SelectContent>
-                              <SelectItem value="NEW">New</SelectItem>
+                              {/* Values matched to CONDITION_CHOICES keys in models.py */}
                               <SelectItem value="LIKE_NEW">Like New</SelectItem>
                               <SelectItem value="GOOD">Good</SelectItem>
                               <SelectItem value="FAIR">Fair</SelectItem>
+                              <SelectItem value="POOR">Poor</SelectItem>
                             </SelectContent>
                           </Select>
                           <FormMessage />
