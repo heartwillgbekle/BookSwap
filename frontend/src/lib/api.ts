@@ -1,5 +1,5 @@
 // SwapHub API Service Layer
-const API_BASE_URL = "https://seashell-app-t7cwg.ondigitalocean.app";
+const API_BASE_URL = "";
 
 export interface Book {
   id: number;
