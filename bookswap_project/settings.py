@@ -140,7 +140,9 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': [
         'rest_framework.authentication.TokenAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
+    ],
+    'DEFAULT_PERMISSION_CLASSES': [
+        'rest_framework.permissions.IsAuthenticatedOrReadOnly',
     ],
 }
 
@@ -172,6 +174,8 @@ CORS_ALLOWED_ORIGINS = [
 CSRF_TRUSTED_ORIGINS = [
     'https://swaphub.me',
     'https://www.swaphub.me'
+    "https://seashell-app-t7cwg.ondigitalocean.app",
+    "http://localhost:5173",
 ]
 
 AUTHENTICATION_BACKENDS = [
