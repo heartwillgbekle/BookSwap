@@ -128,9 +128,9 @@ This project is configured for **DigitalOcean App Platform**.
 1. **Build Command (Backend):** `pip install -r requirements.txt && python manage.py collectstatic --noinput`
 2. **Run Command (Backend):** `gunicorn book_exchange.wsgi:application`
 3. **Environment Variables:**
-* `DATABASE_URL`: (Auto-filled by DigitalOcean)
-* `DJANGO_SECRET_KEY`: (Your secret key)
-* `DEBUG`: `False`
+* `DATABASE_URL`
+* `DJANGO_SECRET_KEY`
+* `DEBUG`
 
 
 4. **HTTP Routes:**
