@@ -174,7 +174,7 @@ If the frontend shows a blank screen:
 
 Created by **Heartwill Gbekle**.
 
-Project Link: [https://github.com/heartwillgbekle/BookSwap](https://www.google.com/search?q=https://github.com/heartwillgbekle/BookSwap)
+Project Link: [https://github.com/heartwillgbekle/BookSwap](https://github.com/heartwillgbekle/BookSwap)
 
 ```
 
